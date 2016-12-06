@@ -51,11 +51,22 @@ public class ColorPalette {
     pushStyle();
     int hue = 120;
     colorMode(HSB,360,100,100,255);
+    /*
     for(int i = 0; i < 3; i++) {
       Item item = new Item();
       item.Color = color((i*hue+angle)%360, saturation, brightness);
       colors.put(i,item);
     }
+    */
+    Item item0 = new Item();
+    item0.Color = color((angle)%360, saturation, brightness);
+    colors.put(0,item0);
+    Item item1 = new Item();
+    item1.Color = color((180-30+angle)%360, saturation, brightness);
+    colors.put(1,item1);
+    Item item2 = new Item();
+    item2.Color = color((180+30+angle)%360, saturation, brightness);
+    colors.put(2,item2);
     popStyle();
   }
   

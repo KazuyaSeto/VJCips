@@ -1,4 +1,4 @@
-public class Scroll implements Drawer {
+class Scroll implements Drawer {
   int offsetX = 100;
   int offsetY = 100;
   
@@ -30,7 +30,7 @@ public class Scroll implements Drawer {
   }
   
   void ChangeSituation(){
-     acc = new  PVector(random(-10,10), random(-10,10));
+     acc = new  PVector(random(-5,5), random(-5,5));
   }
   
   void Setup(){

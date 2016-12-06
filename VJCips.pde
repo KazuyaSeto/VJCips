@@ -350,7 +350,7 @@ void drawSpectram()
   {
     drawerList = new ArrayList<Drawer>();
     drawerList.add(new Scroll());
-    drawerList.add(new Test2());
+    drawerList.add(new Rotater());
     drawerList.add(new LightBlur());
     drawer = drawerList.get(0);
     drawer.Setup();
