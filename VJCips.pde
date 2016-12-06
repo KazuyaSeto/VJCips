@@ -1,6 +1,10 @@
+import de.looksgood.ani.*;
+import de.looksgood.ani.easing.*;
+
 import ddf.minim.analysis.*;
 import ddf.minim.*;
 import controlP5.*;
+import codeanticode.syphon.*;
 
 AudioAnalyzer analyzer;
 ControlP5 cp5;
@@ -10,10 +14,19 @@ int loopx = 0;
 int loopy = 0;
 int angle = 0;
 
-Viewer[] viewers;
-ColorPalette pallette;
+// 共通のパラメータ
+int type = 0;
+float value0 = 0;
+float value1 = 0;
+float value3 = 0;
+boolean toggle = false;
 
-int situation = 0;
+ArrayList<Drawer> drawerList;
+Drawer drawer;
+SyphonServer server;
+ColorPalette pallette;
+PImage imgBuff;
+int situation = 1;
 // シチュエーション定数（起承転結）
 public static class Situation {
   public static int Introduction = 0;
@@ -23,58 +36,69 @@ public static class Situation {
 }
 
 int blend = BLEND;
+boolean inited = false;
 
-// ビデオ用のインターフェイス
-interface Drawer {
-  void Setup();
-  void UpdateIntroduction();
-  void UpdateDevelopment();
-  void UpdateTurn();
-  void UpdateConclusion();
-  void DrawIntroduction();
-  void DrawDevelopment();
-  void DrawTurn();
-  void DrawConclusion();
+PApplet instance()
+{
+  return this;
 }
 
 void settings() {
-  size(300, 300);
+  size(350, 600, P3D);
   PJOGL.profile=1;
 }
 
 void setup() {
+  Ani.init(this);
+  server = new SyphonServer(this, "P5 VJCips Syphon");
+  imgBuff = createImage(this.width, this.height, RGB);
+  InitDrawer();
   frameRate(60);
-  guiSettings();
-  viewers = new Viewer[2];
-  for(int i = 0; i < viewers.length; i++) {
-    String[] argsViewer = {"Viewer" + i};
-    Viewer viewer = new Viewer(i);
-    PApplet.runSketch(argsViewer, viewer);
-  }
-  
   analyzer = new AudioAnalyzer(this);  
-  //pallette = new ColorPalette();
+  pallette = new ColorPalette();
   
+  guiSettings();
+  
+}
+
+void update()
+{
+    if(situation == Situation.Introduction) drawer.UpdateIntroduction();
+    if(situation == Situation.Development) drawer.UpdateDevelopment();
+    if(situation == Situation.Turn) drawer.UpdateTurn();
+    if(situation == Situation.Conclusion) drawer.UpdateConclusion();
 }
 
 void draw()
 {
-    background(0);
+    if(analyzer != null)analyzer.forward(levelSliderValue);
+    if(pallette != null)pallette.Generate(angle,100,100);
+    //background(0);
     stroke(255);
     fill(255);
     textSize(16);
-    text(""+frameRate,10,100);
-    drawAudioParam();
-    pushMatrix();
-    translate(200,height-30);
+    
+    //drawAudioParam();
+    //pushMatrix();
+    //translate(200,height-30);
     //pallette.draw(this,30,100);
-    popMatrix();
+    //popMatrix();
+    
+    update();
+    //background(frameCount%255);
+    if(situation == Situation.Introduction) drawer.DrawIntroduction();
+    if(situation == Situation.Development) drawer.DrawDevelopment();
+    if(situation == Situation.Turn) drawer.DrawTurn();
+    if(situation == Situation.Conclusion) drawer.DrawConclusion();
+    server.sendScreen();
+    text(""+frameRate,10,100);
 }
 
 void ChangeDrawer(int index)
 {
-  //if(index >= drawerList.size()) return; 
-  //drawer = drawerList.get(index);
+    if(index >= drawerList.size())return ;
+    drawer = drawerList.get(index);
+    drawer.Setup();
 }
 
 void ChangeBlendMode(int index)
@@ -85,8 +109,8 @@ void ChangeBlendMode(int index)
 void ChangeSituation(int index)
 {
   situation = index;
+  drawer.ChangeSituation();
 }
-
 
 void guiSettings() {
   cp5 = new ControlP5(this);
@@ -177,13 +201,10 @@ void changeSituationButton(int situation)
   ChangeSituation(situation);
 }
 
-
-
 void drawAudioParam()
 {
   pushStyle();
   pushMatrix();
-  noSmooth();
   colorMode(RGB,255,255,255,255);
   translate(0,200);
   textSize(10);
@@ -324,3 +345,21 @@ void drawSpectram()
   popStyle();
   popMatrix();
 }
+
+  void InitDrawer()
+  {
+    drawerList = new ArrayList<Drawer>();
+    drawerList.add(new Scroll());
+    drawerList.add(new Test2());
+    drawerList.add(new LightBlur());
+    drawer = drawerList.get(0);
+    drawer.Setup();
+  }
+
+  public void UpdateImageBuffer()
+  {
+    this.loadPixels();
+    imgBuff.pixels = pixels;
+    //画像バッファへ反映
+    imgBuff.updatePixels();
+  }

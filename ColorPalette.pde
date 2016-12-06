@@ -59,4 +59,18 @@ public class ColorPalette {
     popStyle();
   }
   
+  public color KeyColor()
+  {
+    return colors.get(0).Color; 
+  }
+  
+  public color SubColor()
+  {
+    return colors.get(1).Color;
+  }
+  
+  public color AccentColor()
+  {
+    return colors.get(2).Color;
+  }
 }
