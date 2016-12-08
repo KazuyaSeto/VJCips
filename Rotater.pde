@@ -2,6 +2,7 @@ class Rotater implements Drawer {
   class EllipseMotion extends Motion {
     PVector pos = new PVector(random(0,width),random(0,height));
     int num = 0;
+    
     void Start(color c, int num) {
       this.c = c;
       this.num = num;
@@ -10,17 +11,19 @@ class Rotater implements Drawer {
     
     void Draw()
     {
-      fill(c,(1-value)*255);
+      fill(c,(1-value)*255*2);
       float size = 1.3 - (0.1 * num); 
       size = size < 0 ? 0.1 : size;
       ellipse(pos.x,pos.y,value*size*height,value*size*height);
     }
     
     Ani createAni() {
-      return Ani.to(this, 1.5, "value", 1.0, Ani.QUINT_OUT,"onStart:OnStart, onEnd:OnEnd");
+      Ani _ani = Ani.to(this, 1.5, "value", 1.0, Ani.QUINT_OUT,"onStart:OnStart, onEnd:OnEnd");
+      return _ani;
     }
   }
   
+  int size = 20;
   float value = 0;
   int index = 0;
   int drawnum = 0;
@@ -66,7 +69,7 @@ class Rotater implements Drawer {
       switchFlag = !switchFlag;
       value = 0;
       bgColor = rectColor;
-      drawnum = (int)random(0,7);
+      drawnum = (int)random(0,8);
       if(switchFlag) {
         index++;
         index = index%pallette.colors.size();
@@ -107,13 +110,22 @@ class Rotater implements Drawer {
     {
       rect(0,(1-value)*height,width,value*height);
     }
-    else {
-      int size = 20;
+    else if(number == 6)
+    {
       for(int i = 0; i < size; i++) {
         if(i%2 == 0) {
-          rect(0,i*height/size,value*width,height/size);
+          rect(i*width/size,0,width/size+2,value*height+2);
         } else {
-          rect((1-value)*width,i*height/size,value*width,height/size);
+          rect(i*width/size,(1-value)*height,width/size+2,value*height+1);
+        }
+      }
+    }
+    else {
+      for(int i = 0; i < size; i++) {
+        if(i%2 == 0) {
+          rect(0,i*height/size,value*width+1,height/size+2);
+        } else {
+          rect((1-value)*width,i*height/size+1,value*width,height/size+2);
         }
       }
     }
@@ -127,7 +139,6 @@ class Rotater implements Drawer {
   void OnEnd(Ani _ani)
   {
      value = 0;
-
   }
   
   void DrawDevelopment(){
@@ -138,6 +149,8 @@ class Rotater implements Drawer {
     if(!ani.isPlaying() && analyzer.isKick()) {
       value = 0;
       bgColor = rectColor;
+      drawnum = (int)random(6,8);
+      size = (int)random(0,20);
       index++;
       index = index%pallette.colors.size();
       rectColor = pallette.colors.get(index).Color;
@@ -145,14 +158,7 @@ class Rotater implements Drawer {
     }
     background(bgColor);
     fill(rectColor);
-    int size = 5;
-    for(int i = 0; i < size; i++) {
-      if(i%2 == 0) {
-        rect(0,i*height/size,value*width,height/size);
-      } else {
-        rect((1-value)*width,i*height/size,value*width,height/size);
-      }
-    }
+    RandomDraw(drawnum);
     popMatrix();
     popStyle();
   }
@@ -182,6 +188,27 @@ class Rotater implements Drawer {
   }
   
   void DrawConclusion(){
-  
+    DrawDevelopment();
+    pushStyle();
+    pushMatrix();
+    noStroke();
+    ellipseMode(CENTER);
+    rectMode(CORNER);
+    //background(0);
+    /*
+    if(analyzer.isKick()) {
+      Motion motion = new Motion();
+      motion.Start();
+      motionSystem.AddMotion(motion);
+    }
+    */
+    if(analyzer.isSnare()) {
+      EllipseMotion motion = new EllipseMotion();
+      motion.Start(pallette.colors.get((int)random(0,pallette.colors.size())).Color, motionSystem.motions.size());
+      motionSystem.AddMotion(motion);
+    }
+    motionSystem.Run();
+    popMatrix();
+    popStyle();
   }
 }

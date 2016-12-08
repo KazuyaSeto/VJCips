@@ -16,9 +16,14 @@ int angle = 0;
 
 // 共通のパラメータ
 int type = 0;
-float value0 = 0;
-float value1 = 0;
-float value3 = 0;
+float value0 = 0; // 0 - 1
+float value1 = 0; // 0 - 1
+float value2 = 0; // 0 - 1
+
+float slider0 = 0; // 0 - 1
+float slider1 = 0; // 0 - 1
+float slider2 = 0; // 0 - 1
+
 boolean toggle = false;
 
 ArrayList<Drawer> drawerList;
@@ -26,6 +31,8 @@ Drawer drawer;
 SyphonServer server;
 ColorPalette pallette;
 PImage imgBuff;
+PFont font;
+
 int situation = 1;
 // シチュエーション定数（起承転結）
 public static class Situation {
@@ -49,6 +56,9 @@ void settings() {
 }
 
 void setup() {
+  font = createFont( "Apple", 48, true );//loadFont("AppleSDGothicNeo-ExtraBold-48.vlw");
+  textFont(font, 48);
+  ortho();
   Ani.init(this);
   server = new SyphonServer(this, "P5 VJCips Syphon");
   imgBuff = createImage(this.width, this.height, RGB);
@@ -73,24 +83,25 @@ void draw()
 {
     if(analyzer != null)analyzer.forward(levelSliderValue);
     if(pallette != null)pallette.Generate(angle,100,100);
-    //background(0);
-    stroke(255);
-    fill(255);
-    textSize(16);
-    
-    //drawAudioParam();
-    //pushMatrix();
-    //translate(200,height-30);
-    //pallette.draw(this,30,100);
-    //popMatrix();
-    
+
+ 
+
     update();
+    blendMode(blend);
     //background(frameCount%255);
     if(situation == Situation.Introduction) drawer.DrawIntroduction();
     if(situation == Situation.Development) drawer.DrawDevelopment();
     if(situation == Situation.Turn) drawer.DrawTurn();
     if(situation == Situation.Conclusion) drawer.DrawConclusion();
     server.sendScreen();
+    
+}
+
+void drawFramerate()
+{
+    stroke(255);
+    fill(255);
+    textSize(16);
     text(""+frameRate,10,100);
 }
 
@@ -116,17 +127,21 @@ void guiSettings() {
   cp5 = new ControlP5(this);
 
   cp5.addSlider("levelSliderValue")
-     .setPosition(20,20)
+     .setPosition(20,5)
      .setRange(0,100)
      ; 
      
-   cp5.addSlider("loopx")
-     .setPosition(20,40)
-     .setRange(-3,3)
+   cp5.addSlider("value0")
+     .setPosition(20,20)
+     .setRange(0,1)
      ;
-   cp5.addSlider("loopy")
+   cp5.addSlider("value1")
+     .setPosition(20,45)
+     .setRange(0,1)
+     ;
+   cp5.addSlider("value2")
      .setPosition(20,60)
-     .setRange(-3,3)
+     .setRange(-1,1)
      ;
    cp5.addSlider("angle")
      .setPosition(20,80)
@@ -201,157 +216,18 @@ void changeSituationButton(int situation)
   ChangeSituation(situation);
 }
 
-void drawAudioParam()
-{
-  pushStyle();
-  pushMatrix();
-  colorMode(RGB,255,255,255,255);
-  translate(0,200);
-  textSize(10);
-  text("- Audio -",10,10);
-  drawDramPattern();
-  drawLevel();
-  drawAvg();
-  drawVolume();
-  popMatrix();
-  popStyle();
-}
-
-void drawDramPattern()
-{
-  pushMatrix();
-  pushStyle();
-  textMode(CENTER);
-  noStroke();
-  textAlign(CENTER);
-  textSize(10);
-  translate(20,20);
-  int size = 60;
-  int ellipseSize = 7;
-  fill(255,255,0,255);
-  text("hat",0,15);
-  if(analyzer.isHat()){
-    ellipse(0,0,ellipseSize,ellipseSize);
-  }
-  translate(0,25);
-  fill(0,255,255,255); 
-  text("snare",0,15);
-  if(analyzer.isSnare()){
-    ellipse(0,0,ellipseSize,ellipseSize);
-  }
-  translate(0,25);
-  fill(255,0,255,255);
-  text("kick",0,15);
-  if(analyzer.isKick()){
-    ellipse(0,0,ellipseSize,ellipseSize);
-  }
-  popStyle();
-  popMatrix();
-}
-
-void drawLevel() {
-  pushMatrix();
-  pushStyle();
-  stroke(0);
-
-  int rectWidth = 4;
-  int space = 2;
-  int size = 20;
-  int amp = 5;
-  translate(40,88);
-  fill(0,255,0);
-  for(int i = 0; i < size; i++){
-    if(i>=size-3)fill(255,0,0);
-    if(analyzer.getRightLevel()*amp > i){
-      //rect(0,space/2 +(i * space),space,rectHeight);
-      rect(0,-space/2 -(i * space),rectWidth,space);
-    }
-    if(analyzer.getLeftLevel()*amp > i){
-      //rect(rectHeight,space/2 + (i * space),space,rectHeight);
-      rect(rectWidth,-space/2 -(i * space),rectWidth,space);
-    }
-  }
-  popStyle();
-  popMatrix();
-}
-
-void drawAvg() {
-  int space = 2;
-  int size = 20;
-  pushMatrix();
-  pushStyle();
-  stroke(0);
-  translate(52,90);
-  fill(255,0,0,255);
-  for(int i = 0; i < analyzer.avgSize(); i++) {
-    for(int j = 0; j < size; j++) {
-      if(analyzer.getAvg(i)*size > size-j-1)rect(i*space,space*(j-size),space,space);
-    }
-  }
-  popStyle();
-  popMatrix();
-}
-
-void drawVolume()
-{
-  pushMatrix();
-  pushStyle();
-  translate(40,30);
-  //fill(random(0,10),0,0);
-  //noStroke();
-  stroke(255);
-  noFill();
-  int size = width/4;
-  int add = analyzer.bufferSize()/size;
-  int amp = 100;
-  float w = 1;
-  
-  beginShape();
-  vertex(0,-analyzer.getRight(0)*amp);
-  for(int i = 1; i < size; i++) {
-    vertex(i*w,-analyzer.getRight(i)*amp);
-  }
-  endShape();
-  
-  translate(0,height/16);
-  beginShape();
-  vertex(0,-analyzer.getLeft(0)*amp);
-  for(int i = 1; i < size; i++) {
-    vertex(i*w,-analyzer.getLeft(i)*amp);
-  }
-  endShape();
-
-  popStyle();
-  popMatrix();
-}
-
-void drawSpectram()
-{
-  pushMatrix();
-  pushStyle();
-  stroke(255);
-  fill(255);
-  int size = width/4;
-  int offset = analyzer.specSize()/size;
-  int amp = 1;
-  int w = 1;
-  beginShape();
-  vertex(0,0);
-  for(int i = 0; i < size; i++) {
-    vertex(i,-analyzer.getBand(i*offset)*amp);
-  }
-  vertex(0,0);
-  endShape(CLOSE);
-  popStyle();
-  popMatrix();
-}
-
   void InitDrawer()
   {
     drawerList = new ArrayList<Drawer>();
     drawerList.add(new Scroll());
     drawerList.add(new Rotater());
     drawerList.add(new LightBlur());
+    drawerList.add(new DLogo());
+    drawerList.add(new DJKatoh());
+    drawerList.add(new Rail());
+    drawerList.add(new Tile());
+    drawerList.add(new Swimer());
+    drawerList.add(new Shuffle());
     drawer = drawerList.get(0);
     drawer.Setup();
   }
