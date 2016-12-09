@@ -7,6 +7,7 @@ import controlP5.*;
 import codeanticode.syphon.*;
 
 AudioAnalyzer analyzer;
+boolean reverse = false;
 ControlP5 cp5;
 
 int levelSliderValue = 20;
@@ -60,7 +61,7 @@ void setup() {
   textFont(font, 48);
   ortho();
   Ani.init(this);
-  server = new SyphonServer(this, "P5 VJCips Syphon");
+  server = new SyphonServer(this, "P5 VJCips Syphon:" + reverse );
   imgBuff = createImage(this.width, this.height, RGB);
   InitDrawer();
   frameRate(60);

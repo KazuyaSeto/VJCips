@@ -33,6 +33,7 @@ public class AudioAnalyzer {
   int          AVG_SIZE = 128;
   FloatList    volumes;
   float amp = 1.0;
+  boolean reverse =false;
   
   // setup
   AudioAnalyzer(PApplet pApplet)
@@ -68,18 +69,22 @@ public class AudioAnalyzer {
   }
   
   public float getLeft(int index) {
+    if(reverse) return in.right.get(index);
     return in.left.get(index); 
   }
   
   public float getRight(int index) {
+    if(reverse) in.left.get(index);
     return in.right.get(index);
   }
   
   public float getLeftLevel() {
+    if(reverse) map(in.right.level(),0,amp,0,1);
     return map(in.left.level(),0,amp,0,1); 
   }
   
   public float getRightLevel() {
+    if(reverse)map(in.left.level(),0,amp,0,1);
     return map(in.right.level(),0,amp,0,1); 
   }
   
