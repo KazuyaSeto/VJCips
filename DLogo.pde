@@ -1,12 +1,18 @@
 class DLogo implements Drawer {
   PShape dlogoShape;
   PImage dlogImage;
-  
+  PImage aImage;
+  PImage bImage;
+  PImage bobImage;
+  PImage bgImage;
   float delta = 0;
   DLogo() {
-    dlogoShape = loadShape("dlogo.svg");
-    dlogImage = loadImage("d3.png");
-    //dlogImage.mask(loadImage("d3_mask.png"));
+    //dlogoShape = loadShape("dlogo.svg");
+    aImage = loadImage("d3.png");
+    bImage = loadImage("RecordRed.png");
+    bobImage = loadImage("bob.png");
+    bgImage = loadImage("ginga.jpg");
+    //dlogImage.mask(loadImage("d3_mask.jpg"));
   }
   
   void ChangeSituation(){
@@ -17,20 +23,34 @@ class DLogo implements Drawer {
 
   }
   
+  void Switching() {
+    if(sliders[0] < 0.33) {
+      dlogImage = aImage;
+    } else if( sliders[0] < 0.66){
+      dlogImage = bImage;
+    } else {
+      dlogImage = bobImage;
+    }
+  }
+  
   void UpdateIntroduction(){
-    delta += 0.10;
+    Switching();
+    delta += 0.20 * values[2];
   }
   
   void UpdateDevelopment(){
-    delta += 0.10;
+    Switching();
+    delta += 0.20 * values[2];
   }
   
   void UpdateTurn(){
-    delta += 0.05;
+    Switching();
+    delta += 0.05 * values[2];
   }
   
   void UpdateConclusion(){
-  
+    Switching();
+    delta += 0.40 * values[2];
   }
   
   void DrawIntroduction(){
@@ -40,7 +60,7 @@ class DLogo implements Drawer {
     
   void DrawDevelopment(){
     background(pallette.SubColor());
-    DrawDlog((int)(value0*3)+1,(int)(value1*6)+1,dlogImage,false);
+    DrawDlog((int)(values[0]*3)+1,(int)(values[1]*6)+1,dlogImage,false);
   }
   
   void DrawDlog(int sizeX, int sizeY, PImage img, boolean rotateOnly)
@@ -75,10 +95,30 @@ class DLogo implements Drawer {
   
   void DrawTurn(){
       background(128);
-      DrawDlog((int)(value0*3)+1,(int)(value1*6)+1,dlogImage,true);
+      if(toggle) {
+        background(0);
+        pushMatrix();
+        imageMode(CENTER);
+        translate(width/2,height/2,-500);
+        scale(0.7);
+        image(bgImage,0,0);
+        popMatrix();
+      }
+
+      DrawDlog((int)(values[0]*3)+1,(int)(values[1]*6)+1,dlogImage,true);
   }
   
   void DrawConclusion(){
-  
+      background(128);
+      if(toggle) {
+        background(0);
+        pushMatrix();
+        imageMode(CENTER);
+        translate(width/2,height/2,-500);
+        scale(0.7);
+        image(bgImage,0,0);
+        popMatrix();
+      }
+      DrawDlog((int)(values[0]*3)+1,(int)(values[1]*6)+1,dlogImage,true);
   }
 }

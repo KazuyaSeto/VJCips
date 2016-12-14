@@ -120,7 +120,7 @@ public class LightBlur implements Drawer {
     background(0);
     if(!clear)
     {
-      image(imgBuff,loopx,loopy, width, height);
+      image(imgBuff,-slider2D.y,slider2D.x, width, height);
     }
     else {
       clear = false;

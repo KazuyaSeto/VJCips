@@ -59,10 +59,10 @@ public class ColorPalette {
     }
     */
     Item item0 = new Item();
-    item0.Color = color((angle)%360, saturation, brightness);
+    item0.Color = color((angle)%360, saturation/2, brightness);
     colors.put(0,item0);
     Item item1 = new Item();
-    item1.Color = color((180-30+angle)%360, saturation, brightness);
+    item1.Color = color((180-30+angle)%360, saturation/3, brightness);
     colors.put(1,item1);
     Item item2 = new Item();
     item2.Color = color((180+30+angle)%360, saturation, brightness);

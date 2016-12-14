@@ -35,8 +35,8 @@ class Scroll implements Drawer {
   void ChangeSituation(){
      acc = new  PVector(random(-5,5), random(-5,5));
      if(situation == Situation.Conclusion) {
-         offsetX = 50;
-         offsetY = 50;
+         offsetX = 100;
+         offsetY = 100;
          pos = new PVector(1,1);
      } else {
          offsetX = 100;

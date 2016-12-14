@@ -72,9 +72,9 @@ class Shuffle implements Drawer {
     pushMatrix();
     translate(width/2,height/2);
     //rotate(angle);
-    scale(value2);
+    scale(values[2]);
     background(0);
-    image(imgBuff,loopx,loopy, width, height);
+    image(imgBuff,slider2D.x,slider2D.y, width, height);
     popMatrix();
     noSmooth();
     textMode(CENTER);
